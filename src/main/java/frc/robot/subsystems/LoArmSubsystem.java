@@ -12,11 +12,14 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LoArmConstants;
+import frc.robot.Constants.OIConstants;
 
 /**
  * Subsystem for wrist mechanism
@@ -46,6 +49,7 @@ public class LoArmSubsystem extends SubsystemBase {
   //private final static DigitalInput LoProx = new DigitalInput(1);
 
   private final HiArmSubsystem m_hiarm;
+  XboxController m_armController = new XboxController(OIConstants.kArmControllerPort);
 
   public LoArmSubsystem(HiArmSubsystem hi) {
     m_hiarm = hi;
@@ -129,7 +133,15 @@ public class LoArmSubsystem extends SubsystemBase {
       LopidController.setReference(LotargetPosition, 
           ControlType.kPosition ); // feedForward, ArbFFUnits.kPercentOut);
     }
-
+    if(MathUtil.applyDeadband(m_armController.getRightY(), OIConstants.kDriveDeadband) > 0) {
+      this.variableIntake(m_armController.getRightY());
+    }
+    else if(MathUtil.applyDeadband(m_armController.getRightY(), OIConstants.kDriveDeadband) < 0) {
+      this.variableExpell(-m_armController.getRightY());
+    }
+    else {
+      this.stopRollers();
+    }
     // SmartDashboard.putNumber("Arm Setpoint",targetPosition);
     SmartDashboard.putNumber("LoArm Position Raw", LoarmEncoder.getPosition());
     SmartDashboard.putNumber("LoArm Output", LoarmMotor.getAppliedOutput());
@@ -159,12 +171,20 @@ public class LoArmSubsystem extends SubsystemBase {
     LoRollerMotor.set(OBJ_INTAKE_SPEED);
   }
 
+  public void variableIntake(double percent) {
+    LoRollerMotor.set(OBJ_INTAKE_SPEED*percent);
+  }
+
     /**
    * expell cube
    * 
    */
   public void expellObj() {
     LoRollerMotor.set(OBJ_EXPELL_SPEED);
+  }
+
+  public void variableExpell(double percent) {
+    LoRollerMotor.set(OBJ_EXPELL_SPEED*percent);
   }
 
   /**

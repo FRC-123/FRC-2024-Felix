@@ -27,17 +27,17 @@ public class DefaultDriveCommand extends CommandBase{
                 return;
             }
         }
-        double multiplier = 0.5;
-        double povmultiplier = 1;
+        double multiplier = 0.4;
+        double povmultiplier = 0.5;
         if((m_drivController.getLeftTriggerAxis() > 0.75) || (m_drivController.getRightTriggerAxis() > 0.75)) {
             multiplier = 0.65; //Turbo
-            povmultiplier = 1.4; //POV Turbo
+            povmultiplier = 1; //POV Turbo
         }
         if(m_drivController.getPOV() == -1) {
             driveSubsystem.drive(
-                -multiplier*MathUtil.applyDeadband(m_drivController.getLeftY(), OIConstants.kDriveDeadband),
-                -multiplier*MathUtil.applyDeadband(m_drivController.getLeftX(), OIConstants.kDriveDeadband),
-                -multiplier*MathUtil.applyDeadband(m_drivController.getRightX(), OIConstants.kDriveDeadband),
+                -multiplier*MathUtil.applyDeadband(m_drivController.getLeftY(), 0.015),
+                -multiplier*MathUtil.applyDeadband(m_drivController.getLeftX(), 0.015),
+                -multiplier*0.85*MathUtil.applyDeadband(m_drivController.getRightX(), 0.01),
                 true, true);
         }
         else {

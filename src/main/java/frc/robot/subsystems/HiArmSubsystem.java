@@ -12,11 +12,14 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.HiArmConstants;
+import frc.robot.Constants.OIConstants;
 
 /**
  * Subsystem for wrist mechanism
@@ -39,15 +42,17 @@ public class HiArmSubsystem extends SubsystemBase {
 
   private final CANSparkMax HiRollerMotor;
 
-  private final static double CUBE_INTAKE_SPEED = 0.9;
-  private final static double CUBE_EXPELL_SPEED = -0.6;
-  private final static double CONE_INTAKE_SPEED = -0.3;
-  private final static double CONE_EXPELL_SPEED = 0.3;
+  private final static double CUBE_INTAKE_SPEED = -0.6;
+  private final static double CUBE_EXPELL_SPEED = 0.9;
+  private final static double CONE_INTAKE_SPEED = 0.3;
+  private final static double CONE_EXPELL_SPEED = -0.3;
 
   private final static DigitalInput HiProx = new DigitalInput(0);
   private final static DigitalInput bottomLimit = new DigitalInput(2);
   private Double HitargetPosition = 0.0;
   private boolean lastLimit;
+  XboxController m_armController = new XboxController(OIConstants.kArmControllerPort);
+  public boolean auto = true;
 
   public HiArmSubsystem() {
 
@@ -137,7 +142,17 @@ public class HiArmSubsystem extends SubsystemBase {
       HipidController.setReference(HitargetPosition, 
           ControlType.kPosition ); // feedForward, ArbFFUnits.kPercentOut);
     }
-
+    if(!auto) {
+      if(MathUtil.applyDeadband(m_armController.getLeftY(), OIConstants.kDriveDeadband) > 0) {
+        this.variableIntake(m_armController.getLeftY(), !m_armController.getXButton());
+      }
+      else if(MathUtil.applyDeadband(m_armController.getLeftY(), OIConstants.kDriveDeadband) < 0) {
+        this.variableExpell(-m_armController.getLeftY(), !m_armController.getXButton());
+      }
+      else {
+        this.stopRollers();
+      }
+    }
     // SmartDashboard.putNumber("Arm Setpoint",targetPosition);
     SmartDashboard.putNumber("HiArm Position Raw", HiarmEncoder.getPosition());
     SmartDashboard.putNumber("HiArm Output", HiarmMotor.getAppliedOutput());
@@ -200,6 +215,24 @@ public class HiArmSubsystem extends SubsystemBase {
    */
   public void expellCone() {
     HiRollerMotor.set(CONE_EXPELL_SPEED);
+  }
+
+  public void variableExpell(double percent, boolean cone) {
+    if(cone) {
+      HiRollerMotor.set(CONE_EXPELL_SPEED*percent);
+    }
+    else {
+      HiRollerMotor.set(CUBE_EXPELL_SPEED*percent);
+    }
+  }
+
+  public void variableIntake(double percent, boolean cone) {
+    if(cone) {
+      HiRollerMotor.set(CONE_INTAKE_SPEED*percent);
+    }
+    else {
+      HiRollerMotor.set(CUBE_INTAKE_SPEED*percent);
+    }
   }
 
   /**
