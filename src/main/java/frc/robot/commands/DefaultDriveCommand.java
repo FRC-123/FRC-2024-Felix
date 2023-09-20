@@ -27,6 +27,13 @@ public class DefaultDriveCommand extends CommandBase{
                 return;
             }
         }
+        int fineTurn = 0;
+        if(m_drivController.getXButton()) {
+            fineTurn += 1;
+        }
+        if(m_drivController.getBButton()) {
+            fineTurn -= 1;
+        }
         double multiplier = 0.4;
         double povmultiplier = 0.5;
         if((m_drivController.getLeftTriggerAxis() > 0.75) || (m_drivController.getRightTriggerAxis() > 0.75)) {
@@ -34,36 +41,45 @@ public class DefaultDriveCommand extends CommandBase{
             povmultiplier = 1; //POV Turbo
         }
         if(m_drivController.getPOV() == -1) {
-            driveSubsystem.drive(
-                -multiplier*MathUtil.applyDeadband(m_drivController.getLeftY(), 0.015),
-                -multiplier*MathUtil.applyDeadband(m_drivController.getLeftX(), 0.015),
-                -multiplier*0.85*MathUtil.applyDeadband(m_drivController.getRightX(), 0.01),
-                true, true);
+            if(fineTurn == 0) {
+                driveSubsystem.drive(
+                    -multiplier*MathUtil.applyDeadband(m_drivController.getLeftY(), 0.015),
+                    -multiplier*MathUtil.applyDeadband(m_drivController.getLeftX(), 0.015),
+                    -multiplier*0.85*MathUtil.applyDeadband(m_drivController.getRightX(), 0.01),
+                    true, true);
+            }
+            else {
+                driveSubsystem.drive(
+                    -multiplier*MathUtil.applyDeadband(m_drivController.getLeftY(), 0.015),
+                    -multiplier*MathUtil.applyDeadband(m_drivController.getLeftX(), 0.015),
+                    povmultiplier*fineTurn,
+                    true, true);
+            }
         }
         else {
             if(m_drivController.getPOV() == 0) {
-                driveSubsystem.drive(povmultiplier*0.25, 0, 0, true, true);
+                driveSubsystem.drive(povmultiplier*0.25, 0, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 45) {
-                driveSubsystem.drive(povmultiplier*0.25, povmultiplier*-0.25, 0, true, true);
+                driveSubsystem.drive(povmultiplier*0.25, povmultiplier*-0.25, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 90) {
-                driveSubsystem.drive(0, povmultiplier*-0.25, 0, true, true);
+                driveSubsystem.drive(0, povmultiplier*-0.25, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 135) {
-                driveSubsystem.drive(povmultiplier*-0.25, povmultiplier*-0.25, 0, true, true);
+                driveSubsystem.drive(povmultiplier*-0.25, povmultiplier*-0.25, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 180) {
-                driveSubsystem.drive(povmultiplier*-0.25, 0, 0, true, true);
+                driveSubsystem.drive(povmultiplier*-0.25, 0, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 225) {
-                driveSubsystem.drive(povmultiplier*-0.25, povmultiplier*0.25, 0, true, true);
+                driveSubsystem.drive(povmultiplier*-0.25, povmultiplier*0.25, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 270) {
-                driveSubsystem.drive(0, povmultiplier*0.25, 0, true, true);
+                driveSubsystem.drive(0, povmultiplier*0.25, povmultiplier*fineTurn, true, true);
             }
             else if(m_drivController.getPOV() == 315) {
-                driveSubsystem.drive(povmultiplier*0.25, povmultiplier*0.25, 0, true, true);
+                driveSubsystem.drive(povmultiplier*0.25, povmultiplier*0.25, povmultiplier*fineTurn, true, true);
             }
         }
     }
