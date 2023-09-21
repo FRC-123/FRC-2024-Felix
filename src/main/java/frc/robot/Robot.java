@@ -70,7 +70,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.setSubsystemAuto(true);
-    m_robotContainer.setFieldRelativeOffset(180);
     //m_robotContainer.setBrakeMode(IdleMode.kCoast);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
