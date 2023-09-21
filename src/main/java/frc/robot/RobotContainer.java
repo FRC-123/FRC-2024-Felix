@@ -202,7 +202,8 @@ public class RobotContainer {
     //         m_robotDrive);*/
     //     RamseteCommand ramseteCommand = 
     //         new RamseteCommand(exampleTrajectory, m_robotDrive::getPose, new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta), DriveConstants.kDriveKinematics, m_robotDrive::tankMetersPerSecond, m_robotDrive);
-    
+    m_robotDrive.zeroHeading();
+    m_robotDrive.setFieldRelativeOffset(180);
     m_robotDrive.resetOdometry(new Pose2d(0, 0, new Rotation2d(0)));
     // Reset odometry to the starting pose of the trajectory.
     //m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose()); // for ramsete command
