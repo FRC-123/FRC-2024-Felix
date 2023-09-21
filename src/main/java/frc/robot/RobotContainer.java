@@ -382,5 +382,8 @@ public class RobotContainer {
     public void setSubsystemAuto(boolean auto) {
         m_hiArm.auto = auto;
     }
+    public void setFieldRelativeOffset(double offset) {
+        m_robotDrive.setFieldRelativeOffset(offset);
+    }
 }
 
